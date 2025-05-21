@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking de Colaboradores</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --secondary: #3498db;
+      --accent: #e74c3c;
+      --light: #ecf0f1;
+      --dark: #2c3e50;
+      --success: #2ecc71;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      font-weight: 300;
+      opacity: 0.9;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+      border-bottom: 2px solid var(--light);
+      padding-bottom: 10px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    
+    button, .btn {
+      background-color: var(--secondary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    button:hover, .btn:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-success {
+      background-color: var(--success);
+    }
+    
+    .btn-success:hover {
+      background-color: #27ae60;
+    }
+    
+    .podio-container {
+      display: flex;
+      justify-content: space-around;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    
+    .podio-item {
+      text-align: center;
+      flex: 1;
+      min-width: 250px;
+      margin: 10px;
+    }
+    
+    .podio-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid;
+      margin-bottom: 15px;
+    }
+    
+    .first-place {
+      order: 1;
+    }
+    
+    .first-place .podio-avatar {
+      border-color: gold;
+      width: 150px;
+      height: 150px;
+    }
+    
+    .second-place {
+      order: 2;
+    }
+    
+    .second-place .podio-avatar {
+      border-color: silver;
+    }
+    
+    .third-place {
+      order: 3;
+    }
+    
+    .third-place .podio-avatar {
+      border-color: #cd7f32; /* bronze */
+    }
+    
+    .podio-name {
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin: 10px 0;
+    }
+    
+    .podio-position {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    .podio-votes {
+      font-size: 1rem;
+      color: #7f8c8d;
+    }
+    
+    .funcionarios-list {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .funcionarios-list th, .funcionarios-list td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .funcionarios-list th {
+      background-color: var(--light);
+      font-weight: 500;
+    }
+    
+    .funcionarios-list tr:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .avatar-small {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .vote-btn {
+      padding: 5px 10px;
+      background-color: var(--success);
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--secondary);
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+      .podio-container {
+        flex-direction: column;
+      }
+      
+      .podio-item {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Ranking de Colaboradores</h1>
+      <p class="subtitle">Vote nos seus colegas de trabalho favoritos</p>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="card">
+      <h2 class="card-title">Pódio</h2>
+      <div id="podioContainer" class="podio-container">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Carregando pódio...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2 class="card-title">Votar</h2>
+      <div id="listaFuncionariosVotar" class="loading">
+        <div class="spinner"></div>
+        <p>Carregando lista de funcionários...</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2 class="card-title">Cadastrar Novo Colaborador</h2>
+      <form id="cadastroForm">
+        <div class="form-group">
+          <label for="nome">Nome:</label>
+          <input type="text" id="nome" name="nome" required>
+        </div>
+        <div class="form-group">
+          <label for="cargo">Cargo:</label>
+          <input type="text" id="cargo" name="cargo" required>
+        </div>
+        <button type="submit" class="btn btn-success">Cadastrar</button>
+      </form>
+    </div>
+    
+    <div class="card">
+      <h2 class="card-title">Todos os Colaboradores</h2>
+      <div id="listaFuncionarios" class="loading">
+        <div class="spinner"></div>
+        <p>Carregando lista de funcionários...</p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // URLs base
+    const API_URL = '';
+    
+    // Elementos da interface
+    const podioContainer = document.getElementById('podioContainer');
+    const listaFuncionarios = document.getElementById('listaFuncionarios');
+    const listaFuncionariosVotar = document.getElementById('listaFuncionariosVotar');
+    const cadastroForm = document.getElementById('cadastroForm');
+    
+    // Função para carregar o pódio
+    async function carregarPodio() {
+      try {
+        const response = await fetch('/podio');
+        const podio = await response.json();
+        
+        if (podio.length === 0) {
+          podioContainer.innerHTML = '<p>Nenhum voto registrado ainda. Seja o primeiro a votar!</p>';
+          return;
+        }
+        
+        let podioHTML = '';
+        
+        podio.forEach((funcionario, index) => {
+          const positionClass = index === 0 ? 'first-place' : 
+                              index === 1 ? 'second-place' : 'third-place';
+          
+          podioHTML += `
+            <div class="podio-item ${positionClass}">
+              <div class="podio-position">${index + 1}º Lugar</div>
+              <img src="${funcionario.foto}" alt="${funcionario.nome}" class="podio-avatar">
+              <div class="podio-name">${funcionario.nome}</div>
+              <div class="podio-cargo">${funcionario.cargo}</div>
+              <div class="podio-votes">${funcionario.votos} votos</div>
+            </div>
+          `;
+        });
+        
+        podioContainer.innerHTML = podioHTML;
+      } catch (error) {
+        console.error('Erro ao carregar pódio:', error);
+        podioContainer.innerHTML = '<p>Ocorreu um erro ao carregar o pódio. Tente novamente.</p>';
+      }
+    }
+    
+    // Função para carregar lista de funcionários para votação
+    async function carregarFuncionariosParaVotar() {
+      try {
+        const response = await fetch('/funcionarios');
+        const funcionarios = await response.json();
+        
+        if (funcionarios.length === 0) {
+          listaFuncionariosVotar.innerHTML = '<p>Nenhum funcionário cadastrado ainda.</p>';
+          return;
+        }
+        
+        let html = '<table class="funcionarios-list"><thead><tr><th>Foto</th><th>Nome</th><th>Cargo</th><th>Ação</th></tr></thead><tbody>';
+        
+        funcionarios.forEach(func => {
+          html += `
+            <tr>
+              <td><img src="/images/${func.foto || 'avatar-default.png'}" alt="${func.nome}" class="avatar-small"></td>
+              <td>${func.nome}</td>
+              <td>${func.cargo}</td>
+              <td><button class="vote-btn" data-id="${func.id}">Votar</button></td>
+            </tr>
+          `;
+        });
+        
+        html += '</tbody></table>';
+        listaFuncionariosVotar.innerHTML = html;
+        
+        // Adiciona eventos aos botões de votar
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const funcionarioId = this.getAttribute('data-id');
+            await votar(funcionarioId);
+          });
+        });
+      } catch (error) {
+        console.error('Erro ao carregar funcionários:', error);
+        listaFuncionariosVotar.innerHTML = '<p>Ocorreu um erro ao carregar a lista. Tente novamente.</p>';
+      }
+    }
+    
+    // Função para carregar lista completa de funcionários
+    async function carregarTodosFuncionarios() {
+      try {
+        const response = await fetch('/funcionarios');
+        const funcionarios = await response.json();
+        
+        if (funcionarios.length === 0) {
+          listaFuncionarios.innerHTML = '<p>Nenhum funcionário cadastrado ainda.</p>';
+          return;
+        }
+        
+        let html = '<table class="funcionarios-list"><thead><tr><th>Foto</th><th>ID</th><th>Nome</th><th>Cargo</th><th>Votos</th></tr></thead><tbody>';
+        
+        funcionarios.forEach(func => {
+          html += `
+            <tr>
+              <td><img src="/images/${func.foto || 'avatar-default.png'}" alt="${func.nome}" class="avatar-small"></td>
+              <td>${func.id}</td>
+              <td>${func.nome}</td>
+              <td>${func.cargo}</td>
+              <td>${$votos[func.id] || 0}</td>
+            </tr>
+          `;
+        });
+        
+        html += '</tbody></table>';
+        listaFuncionarios.innerHTML = html;
+      } catch (error) {
+        console.error('Erro ao carregar funcionários:', error);
+        listaFuncionarios.innerHTML = '<p>Ocorreu um erro ao carregar a lista. Tente novamente.</p>';
+      }
+    }
+    
+    // Função para votar em um funcionário
+    async function votar(funcionarioId) {
+      try {
+        const response = await fetch('/votar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({ funcionario_id: funcionarioId })
+        });
+        
+        const resultado = await response.json();
+        
+        if (response.ok) {
+          alert(resultado.mensagem);
+          // Atualiza o pódio e a lista após votar
+          await Promise.all([
+            carregarPodio(),
+            carregarTodosFuncionarios()
+          ]);
+        } else {
+          alert(resultado.erro || 'Erro ao votar');
+        }
+      } catch (error) {
+        console.error('Erro ao votar:', error);
+        alert('Erro ao votar. Tente novamente.');
+      }
+    }
+    
+    // Cadastrar novo funcionário
+    cadastroForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = {
+        nome: document.getElementById('nome').value,
+        cargo: document.getElementById('cargo').value
+      };
+      
+      try {
+        const response = await fetch('/funcionarios', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(formData)
+        });
+        
+        const resultado = await response.json();
+        
+        if (response.ok) {
+          alert(`Funcionário cadastrado com sucesso! ID: ${resultado.id}`);
+          cadastroForm.reset();
+          // Atualiza as listas após cadastro
+          await Promise.all([
+            carregarFuncionariosParaVotar(),
+            carregarTodosFuncionarios()
+          ]);
+        } else {
+          alert(resultado.erro || 'Erro ao cadastrar');
+        }
+      } catch (error) {
+        console.error('Erro ao cadastrar:', error);
+        alert('Erro ao cadastrar. Tente novamente.');
+      }
+    });
+    
+    // Carrega todos os dados quando a página é carregada
+    window.addEventListener('DOMContentLoaded', async () => {
+      await Promise.all([
+        carregarPodio(),
+        carregarFuncionariosParaVotar(),
+        carregarTodosFuncionarios()
+      ]);
+    });
+  </script>
+</body>
+</html>
